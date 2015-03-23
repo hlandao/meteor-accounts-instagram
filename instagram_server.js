@@ -18,7 +18,21 @@ Oauth.registerService('instagram', 2, null, function(query) {
 });
 
 var getTokenResponse = function (query) {
-  var config = ServiceConfiguration.configurations.findOne({service: 'instagram'});
+
+    /**
+     * Decide service configuration name on DB (default=instagram).
+     * We use this to enable 2 different Instagram configurations, one for the enterprise version and one production
+     */
+    var defaultServiceConfigName = 'instagram',
+        globalServiceConfigName;
+    try{
+        globalServiceConfigName =  Meteor.settings.public.serviceConfigNames[defaultServiceConfigName];
+    }catch(e){
+
+    }
+    var serviceConfigName =  globalServiceConfigName || defaultServiceConfigName;
+
+    var config = ServiceConfiguration.configurations.findOne({service: serviceConfigName});
 
   if (!config)
     throw new ServiceConfiguration.ConfigError();
